@@ -90,14 +90,11 @@
 		}
 		return element;
 	};
-	/**
-	 * [isSvg description]
-	 * @param  {[type]}  element [description]
-	 * @return {Boolean}         [description]
-	 */
+
 	Svg.prototype.isSvg = function (element) {
 		return element && element.nodeType === 1 && (element instanceof window.SVGElement);
 	};
+	
 	Svg.prototype.isSvgSvg = function (element) {
 		return element && element.nodeType === 1 && (element instanceof window.SVGSVGElement);
 	};
@@ -116,7 +113,7 @@
 	 */
 	var Colors = function () {
 		cols = [
-			//'#3DA9E7', '#A6E22E', '#F92672', '#FD9420', '#E6DB74',
+			'#3DA9E7', '#A6E22E', '#F92672', '#FD9420', '#E6DB74',
 			'#5B9BD5', '#ED7D31', '#A5A5A5', '#FFC000', '#4472C4',
 			'#70AD47', '#255E91', '#9E480E', '#636363', '#997300',
 			'#264478', '#43682B', '#7CAFDD', '#F1975A', '#B7B7B7',
@@ -240,7 +237,7 @@
 	 * @param  {[Array]} args [饼图的实际数据数组]
 	 */
 	var Pie = function (args) {
-		this.numbers = [];
+		this.data = {};
 		this.angles = [];
 		this.rotates = [];
 		this.sectors = [];
@@ -255,30 +252,32 @@
 	};
 	/**
 	 * [Pie 初始化]
-	 * @param  {[Array]} args [饼图的实际数据数组]
+	 * @param  {[Array]} args [饼图的实际数据数组[key : value]]
 	 */
 	Pie.prototype.init = function (args) {
 		var settings = {};
 		var i;
+		var m = 0;
 		var col = new Colors();
 		var shape = [];
 		var fillColor;
 		//var borderColor;
 
-		this.numbers = [];
-		this.angles = [];
+		this.data = [];
+		this.angles  = [];
 		this.rotates = [];
 		this.sectors = [];
-
-		for (i = 0; i < args.length; i++) {
-			if (!isNaN(args[i])) {
-				this.numbers.push(args[i]);
+		for (var key in args) {
+			if (! isNaN(args[key])) {
+				this.data[key] = args[key];
+				shape.push(args[key]);
+				m++;
 			}
 		}
-		this.angles = pie_getAngleArray(this.numbers);
+		this.angles = pie_getAngleArray(shape);
+		shape = [];
 		this.rotates = pie_getRotateArray(this.angles, this.attribute.rotate);
-
-		for (i = 0; i < this.numbers.length; i++) {
+		for (i = 0; i < m; i++) {
 			fillColor = col.nextColor();
 			settings = {
 				x : this.attribute.x,
@@ -291,8 +290,10 @@
 				stroke_width : 1
 			};
 			shape[i] = new Sector(settings);
+
 		}
 		this.sectors = shape;
+
 	};
 	/**
 	 * [设置饼图的属性]
@@ -456,18 +457,26 @@
 		}
 		return ros;
 	};
-
+	/**
+	 * [获取一个范围内随机的整数，]
+	 * @param  {[Int]} min [最小整数]
+	 * @param  {[Int]} max [最大整数]
+	 * @return {[Int]}     [随机整数]
+	 */
 	function randomInt(min, max) {
 		return Math.floor(Math.random() * max + min);
 	};
 
 	test = function () {
 
-		console.time('time1');
-		var pie = new Pie([12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]);
+		//console.time('time1');
+		var t = {a:1, b:2, c:3, d:4, e:'a', f:7};
+		/*var pie = new Pie(t);
 		var svg1 = document.getElementById('svg1');
 		svg1.innerHTML = pie.getHtml();
 		console.timeEnd('time1');
+		console.log(pie.data);*/
+		console.log(t.length);
 
 	}
 
