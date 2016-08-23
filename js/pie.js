@@ -22,7 +22,7 @@
 		this.xmlns = 'http://www.w3.org/2000/xmlns/';
 		this.xlink = 'http://www.w3.org/1999/xlink';
 		this.svgjs = 'http://svgjs.com/svgjs';
-		did = [];
+		did = {};
 	};
 	/**
 	 * [创建svg元素id]
@@ -41,10 +41,13 @@
 			}
 			flag = false;
 		}
-		if (!flag) {
-			did[name] = 0;
+		if (! flag) {
+			console.log('ok');
+			did[name.toString()] = 0;
+			console.log(did);
 			str = 'MySvg' + name.toString() + did[name];
 		}
+		console.log(str);
 		return str;
 	};
 	/**
@@ -52,7 +55,7 @@
 	 * @return {[void]} [无返回值]
 	 */
 	Svg.prototype.clearDid = function () {
-		did = [];
+		did = {};
 	};
 	/**
 	 * [删除did数组中的某一个值]
@@ -61,7 +64,7 @@
 	 */
 	Svg.prototype.removeKeyByDid = function (name) {
 		var key = 'MySvg' + name.toString();
-		var arr = [];
+		var arr = {};
 		for (var k in did) {
 			if (k !== key) {
 				arr[k] = did[k];
@@ -237,16 +240,18 @@
 	 * @param  {[Array]} args [饼图的实际数据数组]
 	 */
 	var Pie = function (args) {
-		this.data = {};
-		this.angles = [];
-		this.rotates = [];
-		this.sectors = [];
+		this.data;
+		this.number;
+		this.angles;
+		this.rotates;
+		this.sectors;
 		this.attribute = {
 			x : 200,
 			y : 200,
 			r : 200,
 			rotate : 0
-		}
+		};
+		did = 0;
 		var arg = args || [];
 		this.init(arg);
 	};
@@ -257,27 +262,27 @@
 	Pie.prototype.init = function (args) {
 		var settings = {};
 		var i;
-		var m = 0;
 		var col = new Colors();
 		var shape = [];
 		var fillColor;
-		//var borderColor;
+		var str;
 
 		this.data = [];
 		this.angles  = [];
 		this.rotates = [];
 		this.sectors = [];
+		this.number = 0;
 		for (var key in args) {
 			if (! isNaN(args[key])) {
 				this.data[key] = args[key];
 				shape.push(args[key]);
-				m++;
+				this.number++;
 			}
 		}
 		this.angles = pie_getAngleArray(shape);
 		shape = [];
 		this.rotates = pie_getRotateArray(this.angles, this.attribute.rotate);
-		for (i = 0; i < m; i++) {
+		for (i = 0; i < this.number; i++) {
 			fillColor = col.nextColor();
 			settings = {
 				x : this.attribute.x,
@@ -290,10 +295,9 @@
 				stroke_width : 1
 			};
 			shape[i] = new Sector(settings);
-
 		}
+		console.log(canvas.getDid());
 		this.sectors = shape;
-
 	};
 	/**
 	 * [设置饼图的属性]
@@ -355,7 +359,7 @@
 			y : p1.y + Math.round(settings.r * Math.sin(Math.PI / 180 * (settings.rotate + settings.angle)) * (-1))
 		};
 		var fl1 = fl2 = 0;
-		if (Math.abs(settings.angle) > 180) {
+		if ((Math.abs(settings.angle) > 180)) {
 			fl1 = 1;
 		}
 		if (settings.angle < 0) {
@@ -391,6 +395,10 @@
 	 */
 	function sector_getPathString(args) {
 		var str = 'M' + args.p1.x + ',' + args.p1.y + ' L' + args.p2.x + ',' + args.p2.y + ' A' + args.r + ',' + args.r + ' 0 ' + args.flag1 + ',' + args.flag2 + ' ' + args.p3.x + ',' + args.p3.y + ' Z';
+		if ((args.p2.x === args.p3.x) && (args.p2.y === args.p3.y)) {
+			str = 'M' + (args.p1.x + args.r) + ',' + args.p1.y + ' A' + args.r + ',' + args.r + ' 0 0,0 ' + (args.p1.x - args.r) + ',' + args.p1.y;
+			str += ' A' + args.r + ',' + args.r + ' 0 0,0 ' + (args.p1.x + args.r) + ',' + args.p1.y;
+		}
 		return str;
 	};
 
@@ -416,9 +424,14 @@
 		if (sum == 0) {
 			return [];
 		}
-		for (i = 0; i < numbers.length; i++) {
+		if (numbers.length == 1) {
+			angles[0] = 360;
+		} else {
+			for (i = 0; i < numbers.length; i++) {
 			angles.push(Math.round(numbers[i] / sum * 360));
+			}
 		}
+		
 		sum = 0;
 		for (i = 0; i < angles.length; i++) {
 			sum += angles[i];
@@ -469,14 +482,10 @@
 
 	test = function () {
 
-		//console.time('time1');
-		var t = {a:1, b:2, c:3, d:4, e:'a', f:7};
-		/*var pie = new Pie(t);
+		var t = {a:1};
+		var pie = new Pie(t);
 		var svg1 = document.getElementById('svg1');
 		svg1.innerHTML = pie.getHtml();
-		console.timeEnd('time1');
-		console.log(pie.data);*/
-		console.log(t.length);
 
 	}
 
